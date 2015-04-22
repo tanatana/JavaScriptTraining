@@ -11,7 +11,9 @@ describe('ステージ3（意図した通りに DOM 要素の構造を変更で�
       // var element = document.querySelector('#firebrick');
       // var ghost = document.querySelector('.firebrick-ghost');
       // element.removeChild(ghost);
-
+      var element = document.querySelector('#firebrick');
+      var ghost = document.querySelector('.firebrick-ghost');
+      element.removeChild(ghost);
 
       var firebrick = document.getElementById('firebrick');
       expect(firebrick.childNodes.length).to.equal(1);
@@ -22,6 +24,10 @@ describe('ステージ3（意図した通りに DOM 要素の構造を変更で�
     it('2 番の要素からインベーダー要素を除去する', function() {
 
       // ここにコードを記述してください。
+      var element = document.querySelector('#chocolate');
+      var ghost = document.querySelector('.chocolate-space-invader');
+      element.removeChild(ghost);
+
 
 
       var darkorange = document.getElementById('chocolate');
@@ -33,7 +39,13 @@ describe('ステージ3（意図した通りに DOM 要素の構造を変更で�
     it('3 番の要素の左右の幽霊要素をすべて除去する', function() {
 
       // ここにコードを記述してください。
-
+      var element = document.querySelector('.mediumseagreen');
+      var ghosts = document.querySelectorAll('.mediumseagreen-ghosts');
+      var length = ghosts.length;
+      var i;
+      for (i = 0; i < length; i += 1) {
+        element.removeChild(ghosts[i]);
+      }
 
       var darkorange = document.querySelector('.mediumseagreen');
       expect(darkorange).to.have.property('textContent', '3\uD83C\uDF3F');
@@ -45,7 +57,8 @@ describe('ステージ3（意図した通りに DOM 要素の構造を変更で�
       elementToAdd.textContent = '\uD83D\uDC2C';
 
       // 上の elementToAdd を追加するコードをここに記述してください。
-
+      var target = document.querySelector('.turquoise');
+      target.appendChild(elementToAdd);
 
       var turquoise = document.querySelector('.turquoise');
       expect(turquoise.childNodes.length).to.equal(2);
@@ -60,7 +73,8 @@ describe('ステージ3（意図した通りに DOM 要素の構造を変更で�
 
       // 上の elementToAdd を、5 番の青色の要素の最初に追加するコードを
       // ここに記述してください。
-
+      var target = document.getElementsByTagName('blockquote')[0];
+      target.insertBefore(elementToAdd, target.firstChild);
 
       var blockquote = document.querySelector('blockquote');
       expect(blockquote.childNodes.length).to.equal(2);
@@ -79,7 +93,7 @@ describe('ステージ3（意図した通りに DOM 要素の構造を変更で�
       // ここに以下のコードを記述してください。
       //
       // $('.brown-ghost').remove();
-
+      $('.brown-ghost').remove();
 
       var $brown = $('#brown');
       expect($brown.children()).to.have.length(0);
@@ -90,7 +104,7 @@ describe('ステージ3（意図した通りに DOM 要素の構造を変更で�
     it('7 番の要素からインベーダー要素を除去する', function() {
 
       // ここにコードを記述してください。
-
+      $('.darkorange-space-invader').remove();
 
       var $darkorange = $('#darkorange');
       expect($darkorange.children()).to.have.length(0);
@@ -104,7 +118,7 @@ describe('ステージ3（意図した通りに DOM 要素の構造を変更で�
     it('8 番の要素の左右の幽霊要素をすべて除去する', function() {
 
       // ここにコードを記述してください。
-
+      $('.limegreen-ghosts').remove();
 
       var $limegreen = $('.limegreen');
       expect($limegreen).to.have.text('8\uD83C\uDF3F');
@@ -115,7 +129,7 @@ describe('ステージ3（意図した通りに DOM 要素の構造を変更で�
       var $elementToAdd = $('<span>\uD83D\uDC2C</span>');
 
       // 上の $elementToAdd を追加するコードをここに記述してください。
-
+      $('.mediumturquoise').append($elementToAdd);
 
       var $mediumturquoise = $('.mediumturquoise');
       expect($mediumturquoise.children()).to.have.length(1);
@@ -127,7 +141,7 @@ describe('ステージ3（意図した通りに DOM 要素の構造を変更で�
       var $elementToAdd = $('<span>\uD83D\uDC1F</span>');
 
       // 上の $elementToAdd を追加するコードをここに記述してください。
-
+      $('p').prepend($elementToAdd);
 
       var $p = $('p');
       expect($p.children()).to.have.length(1);
