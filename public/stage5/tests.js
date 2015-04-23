@@ -103,7 +103,6 @@ describe('ステージ5（意図通りに非同期処理を利用できる）', 
 
       // 作成した promise を promisedFriends 変数に代入してください。
       var fetchFriends = function(friends){
-        console.log(friends);
         return Promise.all(friends.map(function(friend){return fetchFriend(friend);}));
       };
       var fetchFriend = function(friend){
@@ -115,19 +114,40 @@ describe('ステージ5（意図通りに非同期処理を利用できる）', 
       var promisedFriends = fetchFriends(["jisp", "TeJaS"])
             .then(function(res){return Array.prototype.concat.apply([], res);});
 
-
       return expect(promisedFriends).to.eventually.have.length(1)
         .and.have.members(['TypeScript']);
     });
 
 
-    it.skip('/api/friends API を使って CoffeeScript の友人を再帰的に取得できる', function() {
+    it('/api/friends API を使って CoffeeScript の友人を再帰的に取得できる', function() {
       // 難易度高いので、自信のある人だけ挑戦してください。
       // it.skip の .skip を消せば、テストが走るようになります。
 
       // 作成した promise を promisedFriends 変数に代入してください。
-      var promisedFriends = 'change me!';
+      var api = '/api/friends/';
+      var promisedFriends = [];
+      var fetchedFriendList = [];
+      var fetchFriendsRecursive = function(targets){
+        return fetchFriends(targets).then(function(res){
+          var friends = Array.prototype.concat.apply([], res);
+          fetchedFriendList = fetchedFriendList.concat(friends);
+          if (friends.length == 0) {
+            return fetchedFriendList;
+          }
+          return fetchFriendsRecursive(friends);
+        });
+      };
 
+      var fetchFriends = function(targets){
+        return Promise.all(targets.map(function(target){return fetchFriend(target);}));
+      };
+      var fetchFriend = function(target){
+        return fetch(api + target).then(function(res) {
+          return res.json();
+        });
+      };
+
+      promisedFriends = fetchFriendsRecursive(['CoffeeScript']);
 
       return expect(promisedFriends).to.eventually.have.length(5)
         .and.have.members([
@@ -178,8 +198,37 @@ describe('ステージ5（意図通りに非同期処理を利用できる）', 
       var mostPopularRepos = 'change me!';
 
       // 作成した promise を mostPopularRepos 変数に代入してください。
-      var fetchStar = function(keyword){};
-      var fetchStars = function(keywords){};
+      var queryString = function(params){
+        var str = [];
+        for(var p in params)
+          if (params.hasOwnProperty(p)) {
+            str.push(encodeURIComponent(p) + "=" + encodeURIComponent(params[p]));
+          }
+        return str.join("&");
+      };
+
+      var fetchMostPopularRepo = function(keyword){
+        var endpoint = 'http://api.github.com/';
+        var api = 'search/repositories?';
+        var params = {
+          q: keyword,
+          sort: 'star'
+        };
+        return fetch(endpoint + api + queryString(params)).then(function(res) {
+          return res.json();
+        });
+      };
+
+      var fetchMostPopularRepos = function(keywords){
+        return Promise.all(keywords.map(function(keyword){return fetchMostPopularRepo(keyword);}));
+      };
+
+      mostPopularRepos = fetchMostPopularRepos(languages).then(function(res){
+        var ret = res.map(function(repos){
+          return repos.items[0].name;
+        });
+        return ret;
+      });
 
       return expect(mostPopularRepos).to.eventually.have.length(2)
         .and.satisfy(function(names) {
