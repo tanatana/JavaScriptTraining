@@ -126,20 +126,20 @@ describe('ステージ5（意図通りに非同期処理を利用できる）', 
       // 作成した promise を promisedFriends 変数に代入してください。
       var api = '/api/friends/';
       var promisedFriends = [];
-      var fetchedFriendList = [];
-      var fetchFriendsRecursive = function(targets){
-        return fetchFriends(targets).then(function(res){
-          var friends = Array.prototype.concat.apply([], res);
-          fetchedFriendList = fetchedFriendList.concat(friends);
+      var fetchFriendsRecursive = function(targets, list){
+        list = list || [];
+        return fetchFriends(targets).then(function(friends){
           if (friends.length == 0) {
-            return fetchedFriendList;
+            return list;
           }
-          return fetchFriendsRecursive(friends);
+          list = list.concat(friends);
+          return fetchFriendsRecursive(friends, list);
         });
       };
 
       var fetchFriends = function(targets){
-        return Promise.all(targets.map(function(target){return fetchFriend(target);}));
+        return Promise.all(targets.map(fetchFriend))
+          .then(flatMap);
       };
       var fetchFriend = function(target){
         return fetch(api + target).then(function(res) {
@@ -147,7 +147,89 @@ describe('ステージ5（意図通りに非同期処理を利用できる）', 
         });
       };
 
+      var flatMap = function(list){
+        return Array.prototype.concat.apply([], list);
+      };
+
+      // 作成した promise を promisedFriends 変数に代入してください。
       promisedFriends = fetchFriendsRecursive(['CoffeeScript']);
+
+      // /**
+      //  * 友人を取得する。
+      //  * @param {string} usernameToFetch 友人の取得対象のユーザー名。
+      //  * @return {Thenable<Array<string>>} 友人の配列。
+      //  */
+      // function getFriends(usernameToFetch) {
+      //   return fetch(api + usernameToFetch)
+      //     .then(function(response) {
+      //       return response.json();
+      //     });
+      // }
+
+      // /**
+      //  * 配列または配列をもつ promise を展開し、平たい配列をもつ promise を
+      //  * 返す。
+      //  * @param {Array<Thenable<T>|T>} arrayOfPromisedArray promise または、
+      //  *     オブジェクトの配列。
+      //  * @return {Thenable<Array<T>>} 平たい配列をもつ promise。
+      //  * @template T
+      //  */
+      // function flatMap(arrayOfPromisedArray) {
+      //   return Promise.all(arrayOfPromisedArray)
+      //     .then(function(arrayOfArray) {
+      //       return arrayOfArray.reduce(function(flatArray, array) {
+      //         // JavaScript には破壊的な配列結合がないので、
+      //         // Array#push を悪用することが多いです。
+      //         Array.prototype.push.apply(flatArray, array);
+      //         return flatArray;
+      //       }, []);
+      //     });
+      // }
+
+      // /**
+      //  * 配列を結合する関数を返す。この関数の実行前に、結合する配列の片方を
+      //  * 指定する必要がある。
+      //  * @param {Array<T>} arrayA 関数の実行前に指定する、結合したい配列。
+      //  * @return {function(Array<T>): Array<T>} arrayA と arrayB を結合する関数。
+      //  * @template T
+      //  */
+      // function concat(arrayA) {
+      //   return function(arrayB) {
+      //     return arrayA.concat(arrayB);
+      //   };
+      // }
+
+      // /**
+      //  * 友人を再帰的に取得する。
+      //  * @param {string} usernameToFetch 友人の取得対象の名前。
+      //  * @return {Thenable<Array<string>>} 友人名の配列をもつ promise。
+      //  */
+      // function getFriendsRecursively(usernameToFetch) {
+      //   return getFriends(usernameToFetch)
+      //     .then(function(friends) {
+      //       if (friends.length === 0) return friends;
+
+      //       var promisedFriendsOfFriends = Promise.all(
+      //         friends.map(getFriendsRecursively));
+
+      //       return promisedFriendsOfFriends
+      //         .then(flatMap)
+      //         .then(concat(friends));
+      //     });
+      // }
+
+      // /**
+      //  * いい感じにメソッドチェーンの途中で値を出力する
+      //  * @param なんか
+      //  * @return なんか
+      //  */
+      // function tap(object){
+      //   console.log(object);
+      //   return object;
+      // }
+
+      // 作成した promise を promisedFriends 変数に代入してください。
+      // promisedFriends = getFriendsRecursively('CoffeeScript');
 
       return expect(promisedFriends).to.eventually.have.length(5)
         .and.have.members([
